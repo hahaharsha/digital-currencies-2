@@ -1,0 +1,39 @@
+date,stablecoin,type,event
+2022-04-12,usdc,positive,BlackRock and Fidelity Back USDC in $400 Million Funding Round
+2022-04-20,ustc,positive,Terra UST takes over BUSD to become third largest stablecoin
+2022-05-07,ustc,negative,LARGE amounts of UST selling on ANCHOR (approx 500million)
+2022-05-08,ustc,negative,UST depegs LFG deploys assets to defend peg (750million in BTC sold to buy UST. BTC value drops)
+2022-05-09,ustc,negative,UST Depegs again to 35 cents LUNA keeps falling
+2022-05-12,lunaterra,negative,LUNA Collapses by almost 99%
+2022-05-12,ustc,negative,UST Downfall Brings Record Volumes to Curve: IntoTheBlock
+2022-05-13,lunaterra,negative,Terra Halts Its Blockchain and Binance Suspends LUNA Trading
+2022-05-14,lunaterra,negative,LUNA essentially worthless (1/100th of a cent)
+2022-05-16,lunaterra,negative,Luna Foundation Guard 80000 Bitcoin Lighter After Failing to Defend UST Peg
+2022-05-27,usdt,positive,Tether Token (USDT) Launches on Polygon
+2022-06-09,usdt,positive,Tether Tokens (USDT) to Launch on Tezos
+2022-06-11,unknown,negative,Binance CEO mentions selling 500million in FTX holdings
+2022-06-13,dai,positive,TRON DAO RESERVE DEPLOYS Funds (700million deployed)
+2022-06-13,usdc,positive,US$500 million in USDC added to TRON DAO USDD reserve
+2022-08-08,usdc,negative,Circle freezes blacklisted Tornado Cash smart contract addresses
+2022-08-11,unknown,positive,FTX shows sign of trouble and Binance CEO and FTX come to non binding deal for a buyout of FTX
+2022-08-11,dai,negative,MakerDAO should seriously consider depegging DAI from USD — Founder
+2022-08-22,usdc,negative,USDC whales leave and trading volume soars
+2022-08-31,usdc,positive,Centre Consortium Announces Release of USD Coin Version 2.0
+2022-08-31,dai,positive,MakerDAO Christensen Pushes Endgame Plan to Save DAI From Attack
+2022-09-02,lunaterra,negative,Binance Announces LUNC and USTC Deposit And Withdrawal Suspension
+2022-09-05,lunaterra,positive,Luna price has picked momentum as the community continues burning and staking LUNC tokens
+2022-09-06,lunaterra,negative,FTX To Suspend LUNC and USTC Deposits And Withdrawals and Delist ANC
+2022-09-07,lunaterra,negative,Binance - LUNC and USTC Deposits and Withdrawal Suspended
+2022-09-09,lunaterra,positive,Huobi And BTCEX Joins Binance To Support 1.2% Tax Burn For Terra Classic (LUNC)
+2022-09-11,unknown,negative,Binance Backs out of Deal with FTX
+2022-09-12,usdt,positive,Tether (USDT) Launches on Near Network
+2022-09-12,unknown,positive,Binance Announces Zero-Fee Trading For Luna
+2022-09-13,lunaterra,negative,FTX Suspends LUNA and UST Deposits and Withdrawals
+2022-09-28,usdc,positive,USDC coming to five additional blockchain ecosystems
+2022-10-07,dai,positive,MakerDAO goes ahead with $500M investment in treasuries and bonds
+2022-10-09,ustc,positive,USTC jumps over 35% in 24 hours as re-peg proposal emerges
+2022-10-13,ustc,positive,Binance Adds UST to Borrowable Assets List
+2022-10-13,usdt,positive,Tether change reserves to US treasury bills
+2022-10-20,usdt,positive,Tether announces Available in Over 24000 ATMs Across Brazil on 3 November
+2022-10-20,ustc,positive,UST Trading Vol Skyrockets By 240%
+2022-10-27,ustc,positive,UST climbs 15% in 24 hours reclaiming $400 million market cap
