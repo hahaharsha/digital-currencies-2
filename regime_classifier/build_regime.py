@@ -3,9 +3,7 @@ import numpy as np
 from pathlib import Path
 
 
-# --------------------------------------------------
-# 1. PATHS
-# --------------------------------------------------
+# paths
 
 project_root = Path(__file__).resolve().parent.parent
 
@@ -14,10 +12,7 @@ sentiment_path = project_root / "dataset" / "sentiment.csv"
 output_path = project_root / "dataset" / "market_regime.csv"
 
 
-# --------------------------------------------------
-# 2. HELPER FUNCTIONS
-# --------------------------------------------------
-
+# helper functions
 def calculate_rsi(series, window=14):
     delta = series.diff()
 
@@ -149,7 +144,7 @@ def prepare_coin(prices, coin_name):
         ]
     ].copy()
 
-    # Rename so BTC and ETH columns are distinct
+    # rename for clarity
     coin = coin.rename(
         columns={
             "close": f"{coin_name.lower()}_close",
@@ -167,9 +162,7 @@ def prepare_coin(prices, coin_name):
     return coin
 
 
-# --------------------------------------------------
-# 3. LOAD DATA
-# --------------------------------------------------
+# load data
 
 prices = pd.read_csv(
     prices_path,
@@ -185,17 +178,11 @@ print("Prices loaded:", prices.shape)
 print("Sentiment loaded:", sentiment.shape)
 
 
-# --------------------------------------------------
-# 4. PREPARE BTC + ETH
-# --------------------------------------------------
+# prepare btc and eth then merge data
 
 btc = prepare_coin(prices, "BTC")
 eth = prepare_coin(prices, "ETH")
 
-
-# --------------------------------------------------
-# 5. MERGE BTC + ETH
-# --------------------------------------------------
 
 market = btc.merge(
     eth,
@@ -203,10 +190,6 @@ market = btc.merge(
     how="inner"
 )
 
-
-# --------------------------------------------------
-# 6. MERGE FEAR & GREED
-# --------------------------------------------------
 
 market = market.merge(
     sentiment[
@@ -221,21 +204,16 @@ market = market.merge(
 )
 
 
-# --------------------------------------------------
-# 7. FEAR & GREED STRESS SIGNAL
-# --------------------------------------------------
+# f&g signal
 
-# Initial rule:
-# fear_greed < 40 = stressed sentiment
+# initial rule: f&g < 40 = stressed sentiment
 
 market["fear_signal"] = (
     market["fear_greed"] < 40
 ).astype(int)
 
 
-# --------------------------------------------------
-# 8. CONSTRUCT MARKET STRESS COMPONENTS
-# --------------------------------------------------
+# market stress components
 
 # BTC contributes one vote if both its SMA and RSI are bearish
 market["btc_bearish"] = (
@@ -265,12 +243,9 @@ market["stress_score"] = (
 )
 
 
-# --------------------------------------------------
-# 9. BINARY REGIME
-# --------------------------------------------------
+# binary regime
 
-# Majority rule:
-# at least 2 out of 3 stress components agree
+# Majority rule: at least 2 out of 3 stress components agree
 
 market["stress"] = (
     market["stress_score"] >= 2
@@ -283,12 +258,8 @@ market["regime"] = np.where(
 )
 
 
-# --------------------------------------------------
-# 10. DROP INITIAL INDICATOR WARM-UP PERIOD
-# --------------------------------------------------
+# drop initial warm up -  SMA50 needs 50 observations.
 
-# SMA50 needs 50 observations.
-# We don't want early rows where indicators are missing.
 
 required_cols = [
     "btc_sma50",
@@ -305,9 +276,7 @@ market = market.dropna(
 ).copy()
 
 
-# --------------------------------------------------
-# 11. SAVE OUTPUT
-# --------------------------------------------------
+# save outputs
 
 market.to_csv(
     output_path,
@@ -318,9 +287,7 @@ print("\nSaved regime data to:")
 print(output_path)
 
 
-# --------------------------------------------------
-# 12. BASIC CHECKS
-# --------------------------------------------------
+# checks
 
 print("\nRegime counts:")
 print(market["regime"].value_counts())
