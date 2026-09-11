@@ -9,7 +9,16 @@ project_root = Path(__file__).resolve().parent.parent
 
 prices_path = project_root / "dataset" / "prices.csv"
 sentiment_path = project_root / "dataset" / "sentiment.csv"
-output_path = project_root / "dataset" / "market_regime.csv"
+output_path = (
+    project_root
+    / "processed_data"
+    / "market_regime.csv"
+)
+
+output_path.parent.mkdir(
+    parents=True,
+    exist_ok=True
+)
 
 
 # helper functions
