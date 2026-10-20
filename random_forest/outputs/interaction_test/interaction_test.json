@@ -1,0 +1,31 @@
+{
+  "sample": "2022",
+  "hypothesis": "regime-dependence of on-chain feature effects is no larger than under placebo regimes",
+  "statistic": "sum_j SD_grid[PD_j(g, stress=1) - PD_j(g, stress=0)]",
+  "joint_interaction": 0.10965044886796359,
+  "joint_placebo_p_value": 0.03333333333333333,
+  "oob_ap_m1": 0.6448432610994025,
+  "oob_ap_m2": 0.7074188222515685,
+  "oob_ap_gain_placebo_p_value": 0.2,
+  "mean_stress_contrast": 0.07476793143505044,
+  "n_placebos": 89,
+  "placebo_design": "circular shifts of the daily regime series by 30..651 days in steps of 7",
+  "observations": 645,
+  "date_clusters": 215,
+  "rf_params": {
+    "n_estimators": 500,
+    "max_features": "sqrt",
+    "min_samples_leaf": 5,
+    "bootstrap": true,
+    "class_weight": null,
+    "random_state": 0,
+    "n_jobs": -1
+  },
+  "limitation": "In-sample/OOB statistics on 2022 only. Few stress spells and few breaches make the placebo distribution coarse; placebo flags are not independent of each other.",
+  "inputs_sha256": {
+    "C:\\Users\\User\\Desktop\\y4s1\\DSE4101\\digital-currencies-2\\dataset\\onchain_2022_base.csv": "c57890e0dcc0a8fddbb4fb9ecad289de898f1be54b3cfaae75e05016a4b7c764",
+    "C:\\Users\\User\\Desktop\\y4s1\\DSE4101\\digital-currencies-2\\dataset\\onchain_2023_base.csv": "c3d9f855b044ac8fb6d7ac225d5e71893e5d096ec68cb1f70ee03a03a3204dcb",
+    "C:\\Users\\User\\Desktop\\y4s1\\DSE4101\\digital-currencies-2\\depeg_labeller\\results\\depeg_labels_dynamic.csv": "43eb3aba3d888b773ec39386d44ad36a96ee34b29ddb9c4cdfedba0d4477b453",
+    "C:\\Users\\User\\Desktop\\y4s1\\DSE4101\\digital-currencies-2\\regime_classifier\\outputs\\market_regime.csv": "2108f466383d12598bd0d32e36f1fe2e25e41a1854ef4c081fdf094e92db61d7"
+  }
+}

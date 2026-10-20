@@ -1,0 +1,9 @@
+feature,mdi_importance
+log1p_n_transfers,0.1069278447260376
+log1p_onchain_volume,0.13120820580693432
+log1p_n_unique_senders,0.11682708289286493
+log1p_n_unique_receivers,0.19088471919508995
+log1p_minted,0.08204592997740884
+log1p_burned,0.11106119451453446
+log1p_volume_large_transfers,0.12691004646108037
+stress,0.13413497642604946

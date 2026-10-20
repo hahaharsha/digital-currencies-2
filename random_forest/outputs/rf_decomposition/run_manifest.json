@@ -1,0 +1,35 @@
+{
+  "design": "2022 monthly sequential validation; frozen-2022 2023 forecast",
+  "availability_lag_calendar_days": 0,
+  "models": [
+    "M1: on-chain",
+    "M2: on-chain + stress"
+  ],
+  "classifier": "sklearn RandomForestClassifier",
+  "rf_params": {
+    "n_estimators": 500,
+    "max_features": "sqrt",
+    "min_samples_leaf": 5,
+    "bootstrap": true,
+    "class_weight": null,
+    "random_state": 0,
+    "n_jobs": -1
+  },
+  "scaling": "None (trees are invariant to monotone transforms)",
+  "tuning": "None; fixed specification",
+  "validation_start": "2022-07-01",
+  "minimum_training_dates": 90,
+  "files": {
+    "C:\\Users\\User\\Desktop\\y4s1\\DSE4101\\digital-currencies-2\\dataset\\onchain_2022_base.csv": "c57890e0dcc0a8fddbb4fb9ecad289de898f1be54b3cfaae75e05016a4b7c764",
+    "C:\\Users\\User\\Desktop\\y4s1\\DSE4101\\digital-currencies-2\\dataset\\onchain_2023_base.csv": "c3d9f855b044ac8fb6d7ac225d5e71893e5d096ec68cb1f70ee03a03a3204dcb",
+    "C:\\Users\\User\\Desktop\\y4s1\\DSE4101\\digital-currencies-2\\depeg_labeller\\results\\depeg_labels_dynamic.csv": "43eb3aba3d888b773ec39386d44ad36a96ee34b29ddb9c4cdfedba0d4477b453",
+    "C:\\Users\\User\\Desktop\\y4s1\\DSE4101\\digital-currencies-2\\regime_classifier\\outputs\\market_regime.csv": "2108f466383d12598bd0d32e36f1fe2e25e41a1854ef4c081fdf094e92db61d7"
+  },
+  "validation_rows": 372,
+  "test_rows": 267,
+  "decomposition": {
+    "method": "Same fitted M2 forest and on-chain inputs; set stress to zero or one without refitting.",
+    "contribution": "p_m2_oos minus p_m2_stress0",
+    "interpretation": "Model-based probability decomposition, not a causal effect."
+  }
+}
