@@ -3,11 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-root = Path(__file__).resolve().parent  
+root = Path(__file__).resolve().parents[1]  
 df = pd.read_csv(root / 'dataset/prices.csv', parse_dates=['date'])
 df = df[df.coin.isin(['USDT', 'USDC', 'DAI'])].sort_values(['coin', 'date']).copy()
 
-# Thresholds at forecast date t; label uses prices on t+1.
+# thresholds at forecast date t; label uses prices on t+1.
 df['original_bp'] = 1e5 / df.groupby('coin').volume_usd.transform(lambda s: s.rolling(30, min_periods=30).sum()).pow(1/3)
 df['month'] = df.date.dt.to_period('M')
 monthly = df.groupby(['coin', 'month'], as_index=False).volume_usd.sum()
@@ -26,7 +26,7 @@ for method in ['original', 'revised', 'static']:
 df['downside'] = df.next_low <= 1 - df.revised_bp / 1e4
 df['upward_only'] = df.revised & ~df.downside
 
-out = Path(__file__).resolve().parent / 'audit_label'
+out = Path(__file__).resolve().parent / 'results'
 out.mkdir(exist_ok=True)
 df.to_csv(out / 'label_comparison_daily.csv', index=False)
 print('\nPositive coin-days (same forecast dates):')
@@ -53,7 +53,7 @@ fig.tight_layout()
 fig.savefig(out / 'price_labels.png', dpi=160)
 
 # summary table 
-# Deviation magnitude on outcome date (t+1)
+# deviation magnitude on outcome date (t+1)
 df["deviation_bp"] = 10000 * np.maximum(
     (1 - df["next_low"]).clip(lower=0),
     (df["next_high"] - 1).clip(lower=0)
@@ -73,7 +73,7 @@ flagged["range"] = pd.cut(
 
 summary = pd.crosstab(flagged["range"], flagged["coin"])
 
-# Plot deviation magnitude distribution
+# plot deviation magnitude distribution
 ax = summary[['USDT', 'USDC', 'DAI']].plot(
     kind='bar', figsize=(9, 5), width=0.8
 )
@@ -91,7 +91,7 @@ plt.tight_layout()
 plt.savefig(out / 'deviation_magnitude.png', dpi=160)
 plt.close()
 
-# Downside-only robustness
+# downside-only robustness
 summary3 = df.groupby('coin')[['downside', 'upward_only']].sum()
 
 summary3['bilateral'] = summary3.sum(axis=1)
@@ -118,7 +118,7 @@ plt.tight_layout()
 plt.savefig(out / 'downside_robustness.png', dpi=160)
 plt.close()
 
-# Identify new and continuing breaches
+# identify new and continuing breaches
 df = df.sort_values(['coin', 'date']).copy()
 
 for label in ['revised', 'downside']:
