@@ -1,0 +1,52 @@
+{
+  "sample": "2022",
+  "scaling": "Within-coin z scores of log1p predictors, fitted on this inference sample; population SD",
+  "coin_fixed_effects": true,
+  "reference_coin": "DAI",
+  "constant_within_coin_predictors": [
+    {
+      "coin": "USDT",
+      "feature": "log1p_minted"
+    }
+  ],
+  "coin_dummy_parameters": [
+    "coin_USDC",
+    "coin_USDT"
+  ],
+  "cluster_definition": "Monday\u2013Sunday calendar week of predictor date t; all coins share a week cluster",
+  "covariance": "Cluster sandwich with finite-sample multiplier; normal/z 95% coefficient intervals",
+  "hypothesis": "All seven on-chain-by-stress interactions equal zero; coin dummies and stress intercept unrestricted",
+  "wald_chi_square": {
+    "statistic": 54.7833966465725,
+    "df": 7,
+    "p_value": 1.6457331409705748e-09
+  },
+  "secondary_f_reference": {
+    "statistic": 7.826199520938928,
+    "df_num": 7.0,
+    "df_denom": 31.0,
+    "p_value": 1.8555720262928463e-05
+  },
+  "observations": 645,
+  "parameters": 18,
+  "positive_coin_days": 62,
+  "weekly_clusters": 32,
+  "weeks_with_breaches": 12,
+  "first_predictor_date": "2022-04-01",
+  "last_predictor_date": "2022-11-01",
+  "availability_lag_days": 0,
+  "design_condition_number": 73.95098441139722,
+  "warnings": [
+    "Some predictors are constant within a coin and become zero after centering: [{'coin': 'USDT', 'feature': 'log1p_minted'}]",
+    "Fewer than 50 weekly clusters: asymptotic reference distributions may be inaccurate; 50 is a caution flag, not a validity cutoff.",
+    "One regime has fewer positive outcomes than its eight slope/intercept terms; estimates may be unstable even when convergence checks pass.",
+    "Week clustering allows arbitrary dependence within a week across coins/days; dependence across weeks remains unaddressed."
+  ],
+  "descriptive_only": true,
+  "inputs_sha256": {
+    "/Users/harsha/Desktop/digital-currencies-2/dataset/onchain_2022_base.csv": "908faf709b36a7a64e214ba128afb671582c378b5d5417754498e7f696d8a098",
+    "/Users/harsha/Desktop/digital-currencies-2/dataset/onchain_2023_base.csv": "323444d783f317f2fc7dc30214f1b1d4a896d84487f1efaf77b9c55124aa848a",
+    "/Users/harsha/Desktop/digital-currencies-2/depeg_labeller/results/depeg_labels_dynamic.csv": "a1cc6a5b554a1578867982fe69374e8b039bbeebe99e291416da2f8209d8b4a3",
+    "/Users/harsha/Desktop/digital-currencies-2/regime_classifier/outputs/market_regime.csv": "231d7d2c74a47d03ec88ee3047fb31775e50a1d1ed8fa61e5b31d76d0d185c9f"
+  }
+}
