@@ -114,7 +114,7 @@ def find_prices(folder, explicit=False):
     dataset/ subfolder, so a typo fails loudly instead of silently falling back
     to the repo's own data.
     """
-    here = Path(__file__).resolve().parent
+    here = Path(__file__).resolve().parents[1]
     bases = ([folder, folder / "dataset"] if explicit
              else [folder, folder / "dataset", here / "dataset", here])
     seen = []
@@ -275,7 +275,7 @@ def main():
     ap.add_argument("--folder", default=None,
                     help="folder holding the prices file "
                          "(default: the repo's dataset/)")
-    ap.add_argument("--outdir", default="replication_output",
+    ap.add_argument("--outdir", default=str(Path(__file__).resolve().parent / "outputs"),
                     help="where to write the CSVs (default: replication_output)")
     ap.add_argument("--start", default=START_DATE)
     ap.add_argument("--end", default=END_DATE)
