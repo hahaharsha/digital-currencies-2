@@ -1,0 +1,33 @@
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:          depeg_dynamic   No. Observations:                  645
+Model:                            GLM   Df Residuals:                      627
+Model Family:                Binomial   Df Model:                           17
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -91.033
+Date:                Tue, 20 Oct 2026   Deviance:                       182.07
+Time:                        20:02:30   Pearson chi2:                 2.11e+03
+No. Iterations:                    10   Pseudo R-squ. (CS):             0.2958
+Covariance Type:              cluster                                         
+=========================================================================================================
+                                            coef    std err          z      P>|z|      [0.025      0.975]
+---------------------------------------------------------------------------------------------------------
+const                                    -9.3283      1.788     -5.219      0.000     -12.832      -5.825
+log1p_n_transfers                        -5.8565      2.411     -2.429      0.015     -10.582      -1.131
+log1p_onchain_volume                      4.9796      4.597      1.083      0.279      -4.030      13.989
+log1p_n_unique_senders                    3.9595      1.381      2.867      0.004       1.253       6.666
+log1p_n_unique_receivers                  1.4584      1.069      1.364      0.172      -0.637       3.554
+log1p_minted                              3.6807      1.175      3.133      0.002       1.378       5.984
+log1p_burned                             -1.0241      0.342     -2.992      0.003      -1.695      -0.353
+log1p_volume_large_transfers             -4.8337      4.306     -1.123      0.262     -13.274       3.606
+stress                                    4.0584      1.060      3.828      0.000       1.980       6.136
+log1p_n_transfers_x_stress                4.6584      2.464      1.890      0.059      -0.171       9.488
+log1p_onchain_volume_x_stress             2.8646      5.476      0.523      0.601      -7.868      13.598
+log1p_n_unique_senders_x_stress          -3.1287      1.457     -2.148      0.032      -5.984      -0.274
+log1p_n_unique_receivers_x_stress        -2.9474      1.367     -2.156      0.031      -5.627      -0.268
+log1p_minted_x_stress                    -2.8764      1.846     -1.558      0.119      -6.495       0.742
+log1p_burned_x_stress                     0.9670      0.338      2.863      0.004       0.305       1.629
+log1p_volume_large_transfers_x_stress    -1.1829      5.012     -0.236      0.813     -11.007       8.641
+coin_USDC                                 0.5153      1.640      0.314      0.753      -2.698       3.729
+coin_USDT                                 4.6733      1.564      2.989      0.003       1.609       7.738
+=========================================================================================================
