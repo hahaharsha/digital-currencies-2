@@ -2,3 +2,12 @@
 __pycache__/
 *.pyc
 figures/
+
+# Local experiments and retired files
+/local_rf/
+/local_archive/
+/.vscode/
+/dataset/cmc_prices.csv
+/dataset/VIXCLS.csv
+/.ipynb_checkpoints/
+**/.ipynb_checkpoints/
