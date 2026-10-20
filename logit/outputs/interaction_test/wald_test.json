@@ -1,0 +1,23 @@
+{
+  "sample": "2022",
+  "hypothesis": "all seven X-by-stress interaction coefficients equal zero",
+  "wald_chi_square": 59.07440331628922,
+  "df": 7,
+  "p_value": 2.3095899897936905e-10,
+  "observations": 645,
+  "date_clusters": 215,
+  "first_predictor_date": "2022-04-01",
+  "last_predictor_date": "2022-11-01",
+  "availability_lag_days": 0,
+  "design_condition_number": 99.75629798309977,
+  "warnings": [
+    "One regime has fewer breaches than regime-specific slope/intercept parameters; inference is sparse and potentially unstable."
+  ],
+  "limitation": "Date clustering allows within-day cross-coin dependence, not dependence across dates. Rare events, few stress spells, or near separation can undermine asymptotic Wald inference.",
+  "inputs_sha256": {
+    "/Users/harsha/Desktop/digital-currencies-2/dataset/onchain_2022_base.csv": "908faf709b36a7a64e214ba128afb671582c378b5d5417754498e7f696d8a098",
+    "/Users/harsha/Desktop/digital-currencies-2/dataset/onchain_2023_base.csv": "323444d783f317f2fc7dc30214f1b1d4a896d84487f1efaf77b9c55124aa848a",
+    "/Users/harsha/Desktop/digital-currencies-2/processed_data/depeg_labels_dynamic.csv": "a1cc6a5b554a1578867982fe69374e8b039bbeebe99e291416da2f8209d8b4a3",
+    "/Users/harsha/Desktop/digital-currencies-2/processed_data/market_regime.csv": "231d7d2c74a47d03ec88ee3047fb31775e50a1d1ed8fa61e5b31d76d0d185c9f"
+  }
+}

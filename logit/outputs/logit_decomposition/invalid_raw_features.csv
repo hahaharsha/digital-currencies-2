@@ -1,0 +1,15 @@
+file,feature,invalid_rows
+onchain_2022_base.csv,n_transfers,0
+onchain_2022_base.csv,onchain_volume,0
+onchain_2022_base.csv,n_unique_senders,0
+onchain_2022_base.csv,n_unique_receivers,0
+onchain_2022_base.csv,minted,0
+onchain_2022_base.csv,burned,0
+onchain_2022_base.csv,volume_large_transfers,0
+onchain_2023_base.csv,n_transfers,0
+onchain_2023_base.csv,onchain_volume,0
+onchain_2023_base.csv,n_unique_senders,0
+onchain_2023_base.csv,n_unique_receivers,0
+onchain_2023_base.csv,minted,0
+onchain_2023_base.csv,burned,0
+onchain_2023_base.csv,volume_large_transfers,0
