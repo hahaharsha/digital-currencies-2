@@ -11,7 +11,8 @@ prices_path = project_root / "dataset" / "prices.csv"
 sentiment_path = project_root / "dataset" / "sentiment.csv"
 output_path = (
     project_root
-    / "processed_data"
+    / "regime_classifier"
+    / "outputs"
     / "market_regime.csv"
 )
 
@@ -43,7 +44,7 @@ def calculate_adx(df, window=14):
     low = df["low"]
     close = df["close"]
 
-    # Directional movement
+    # directional movement
     up_move = high.diff()
     down_move = -low.diff()
 
@@ -62,7 +63,7 @@ def calculate_adx(df, window=14):
     plus_dm = pd.Series(plus_dm, index=df.index)
     minus_dm = pd.Series(minus_dm, index=df.index)
 
-    # True range
+    # true range
     tr = pd.concat(
         [
             high - low,
@@ -100,10 +101,10 @@ def prepare_coin(prices, coin_name):
         .copy()
     )
 
-    # Daily return
+    # daily return
     coin["return"] = coin["close"].pct_change()
 
-    # Moving averages
+    # moving averages
     coin["sma20"] = coin["close"].rolling(20).mean()
     coin["sma50"] = coin["close"].rolling(50).mean()
 
@@ -119,25 +120,25 @@ def prepare_coin(prices, coin_name):
         window=14
     )
 
-    # Optional rolling volatility for EDA
+    # optional rolling volatility for EDA
     coin["volatility_20"] = (
         coin["return"]
         .rolling(20)
         .std()
     )
 
-    # Bearish SMA signal
+    # bearish SMA signal
     coin["sma_bearish"] = (
         (coin["close"] < coin["sma50"])
         & (coin["sma20"] < coin["sma50"])
     ).astype(int)
 
-    # Bearish RSI signal
+    # bearish RSI signal
     coin["rsi_bearish"] = (
         coin["rsi14"] < 50
     ).astype(int)
 
-    # Keep only the columns we need
+    # keep only the columns we need
     coin = coin[
         [
             "date",
@@ -242,8 +243,8 @@ market["eth_bearish"] = (
 ).astype(int)
 
 
-# Stress score ranges from 0 to 3:
-# BTC bearish + ETH bearish + Fear & Greed stress
+# stress score ranges from 0 to 3:
+# btc bearish + eth bearish + f&g stress
 
 market["stress_score"] = (
     market["btc_bearish"]
@@ -254,7 +255,7 @@ market["stress_score"] = (
 
 # binary regime
 
-# Majority rule: at least 2 out of 3 stress components agree
+# majority rule: at least 2 out of 3 stress components agree
 
 market["stress"] = (
     market["stress_score"] >= 2

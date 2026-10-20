@@ -1,0 +1,5 @@
+window,stress,market_days,coin_days,breach_coin_days,breach_market_days,coin_episodes_overlapping,regime_spells_overlapping,breach_rate
+Actual 2023 test dates,0,86,258,40,33,9,2,0.15503875968992248
+Actual 2023 test dates,1,3,9,9,3,3,1,1.0
+Available 2022 training panel,0,94,282,3,3,2,10,0.010638297872340425
+Available 2022 training panel,1,121,363,59,56,7,9,0.162534435261708
