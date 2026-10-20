@@ -1,0 +1,6 @@
+Depeg Definition,Threshold,Depeg Observations,Total Observations,Non-Depeg Observations,Depeg Rate (%)
+Static ±0.25%,±0.25%,195,2800,2605,6.96
+Static ±0.50%,±0.50%,35,2800,2765,1.25
+Static ±1.00%,±1.00%,17,2800,2783,0.61
+Static ±2.00%,±2.00%,7,2800,2793,0.25
+Dynamic volume-adjusted,Volume-adjusted,421,2800,2379,15.04
