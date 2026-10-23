@@ -73,6 +73,10 @@ def build_labels(d):
     # close is never required for the high/low outcome.
     e['depeg_dynamic'] = breach(e.next_day_low, e.next_day_high,
                                 e.threshold_distance, e.eligible_dynamic)
+    # Downside-only robustness label
+    e['depeg_downside'] = pd.Series(pd.NA, index=e.index, dtype='Int64')
+    ok = e.eligible_dynamic
+    e.loc[ok, 'depeg_downside'] = (e.loc[ok, 'next_day_low'] <= e.loc[ok, 'threshold_down']).astype(int)
     e['depeg_static_25bp'] = breach(e.next_day_low, e.next_day_high,
                                    pd.Series(.0025, index=e.index), e.valid_extremes)
     # reproduce the original 30-observation window through predictor day t.
