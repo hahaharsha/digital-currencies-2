@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-project_root = Path(__file__).resolve().parent
+project_root = Path(__file__).resolve().parents[1]
 prices_path = project_root / "dataset" / "prices.csv"
 
 prices = pd.read_csv(prices_path)

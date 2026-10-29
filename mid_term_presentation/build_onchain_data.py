@@ -5,7 +5,7 @@ from pathlib import Path
 
 # set paths
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 ONCHAIN_2022_PATH = (
     PROJECT_ROOT
@@ -21,6 +21,7 @@ ONCHAIN_2023_PATH = (
 
 OUTPUT_PATH = (
     PROJECT_ROOT
+    / "mid_term_presentation"
     / "processed_data"
     / "onchain_2022_2023_clean.csv"
 )

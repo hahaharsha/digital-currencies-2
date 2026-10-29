@@ -21,7 +21,7 @@ sys.path.insert(0, str(ROOT / "model_comparison"))
 
 from logit_oos import load_inputs, dates, FEATURES, TARGET  # noqa: E402
 from rf_oos import sequential_run, make_forest  # noqa: E402
-from rf_interaction_test import placebo_shifts  # noqa: E402
+from placebo import placebo_shifts  # noqa: E402
 from compare_models import block_bootstrap, deltas, score, METRICS  # noqa: E402
 
 OUT = ROOT / "model_comparison/outputs_score"

@@ -27,7 +27,7 @@ sys.path.insert(0, str(ROOT / "random_forest"))
 
 from logit_oos import load_inputs, TARGET, fit_predict as logit_fit_predict  # noqa: E402
 from rf_oos import sequential_run, fit_predict as rf_fit_predict, RF_PARAMS  # noqa: E402
-from rf_interaction_test import regime_calendar, placebo_shifts, shifted_stress  # noqa: E402
+from placebo import regime_calendar, placebo_shifts, shifted_stress  # noqa: E402
 
 
 def logit_fitter(train, test, fold, phase):

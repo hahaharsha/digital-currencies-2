@@ -1,8 +1,8 @@
 """Word report: Sections 3-5 (methodology, results, contributions).
 
 Reads saved outputs only (run the model scripts, compare_models.py,
-score_variant.py and threshold_event_metrics.py first). Figures are written
-to model_comparison/report_figures/.
+score_variant.py and threshold_event_metrics.py first). The report and its
+figures are written to ~/Downloads/stablecoin_regime_report/, outside the repo.
 """
 
 import json
@@ -27,9 +27,9 @@ import build_report as br  # noqa: E402  (loads all saved outputs + plot style)
 
 ROOT = br.ROOT
 CMP = br.CMP
-FIG = ROOT / "model_comparison/report_figures"
-FIG.mkdir(exist_ok=True)
-OUT = ROOT / "model_comparison/regime_report_sections_3_5.docx"
+FIG = br.REPORT_DIR / "figures"
+FIG.mkdir(parents=True, exist_ok=True)
+OUT = br.REPORT_DIR / "regime_report_sections_3_5.docx"
 TARGET = br.TARGET
 MODELS, PHASES = br.MODELS, br.PHASES
 LOGIT_C, RF_C, INK2, MUTED = br.LOGIT_C, br.RF_C, br.INK2, br.MUTED
@@ -185,8 +185,8 @@ def fig_slopes():
     s["f"] = s.feature.str.replace("log1p_", "").str.replace("_", " ")
     fig, ax = plt.subplots(figsize=(8, 4))
     y = np.arange(len(s))
-    for off, col, se, c, lab in [(-.15, "normal_log_odds_slope", "normal_clustered_se", NORMAL_C, "Normal market"),
-                                 (.15, "stressed_log_odds_slope", "stressed_clustered_se", STRESS_C, "Stressed market")]:
+    for off, col, se, c, lab in [(-.15, "normal_log_odds_slope", "normal_se", NORMAL_C, "Normal market"),
+                                 (.15, "stressed_log_odds_slope", "stressed_se", STRESS_C, "Stressed market")]:
         ax.errorbar(s[col], y + off, xerr=1.96 * s[se], fmt="o", color=c, ms=5, capsize=2, label=lab)
     ax.axvline(0, color=MUTED, lw=.8)
     ax.set_yticks(y, s.f)
@@ -197,29 +197,6 @@ def fig_slopes():
     ax.set_title("Logit M3: the same on-chain feature, two regimes", fontsize=10)
     fig.tight_layout()
     return save(fig, "fig07_logit_slopes.png")
-
-
-def fig_pdp():
-    feats = list(dict.fromkeys(br.rf_pdp.feature))
-    fig, axes = plt.subplots(2, 4, figsize=(11, 5.2))
-    for ax, f in zip(axes.flat, feats):
-        g = br.rf_pdp[br.rf_pdp.feature.eq(f)]
-        ax.plot(g.grid_value, g.pd_normal, color=NORMAL_C, label="Normal")
-        ax.plot(g.grid_value, g.pd_stressed, color=STRESS_C, label="Stressed")
-        ax.set_title(f.replace("log1p_", "").replace("_", " "), fontsize=9)
-        ax.tick_params(labelsize=7)
-    axes.flat[0].legend(fontsize=7)
-    axes.flat[0].set_ylabel("Avg. depeg probability", fontsize=8)
-    axes.flat[4].set_ylabel("Avg. depeg probability", fontsize=8)
-    ax = axes.flat[-1]
-    imp = br.rf_int_imp.sort_values("mdi_importance")
-    ax.barh(imp.feature.str.replace("log1p_", "").str.replace("_", " "), imp.mdi_importance, color=RF_C)
-    ax.set_title("Importance in the forest", fontsize=9)
-    ax.tick_params(labelsize=7)
-    ax.grid(axis="y", visible=False)
-    fig.text(.5, -.01, "x-axis: feature value (log scale)", ha="center", fontsize=8, color=INK2)
-    fig.tight_layout()
-    return save(fig, "fig08_rf_partial_dependence.png")
 
 
 def fig_coef_imp():
@@ -242,7 +219,7 @@ def fig_coef_imp():
         ax.grid(axis="y", visible=False)
     axes[0].axvline(0, color=MUTED, lw=.8)
     fig.tight_layout()
-    return save(fig, "fig09_coefficients_importance.png")
+    return save(fig, "fig08_coefficients_importance.png")
 
 
 # ============================================================ docx helpers
@@ -373,7 +350,7 @@ def callout(title, lines):
 
 # ============================================================ numbers used in text
 
-wald, rf_int = br.wald, br.rf_int
+wald = br.wald
 p22 = panel[panel.date.dt.year.eq(2022)]
 p23 = panel[panel.date.dt.year.eq(2023)]
 br22 = p22.groupby("stress")[TARGET].agg(["size", "sum", "mean"])
@@ -382,8 +359,7 @@ n_fake_logit22 = int(round(br.ps("Logit", PHASES[0], "average_precision").placeb
 
 figs = {
     "design": fig_design(), "context": fig_context(), "ap": fig_ap(), "placebo": fig_placebo(),
-    "svb": fig_svb(), "contrast": fig_contrast(), "slopes": fig_slopes(), "pdp": fig_pdp(),
-    "coef": fig_coef_imp(),
+    "svb": fig_svb(), "contrast": fig_contrast(), "slopes": fig_slopes(), "coef": fig_coef_imp(),
 }
 
 # ============================================================ title
@@ -416,7 +392,7 @@ doc.add_heading("3.3 Models", level=2)
 table(pd.DataFrame([
     ["M1 (baseline)", "7 on-chain features", "How well does on-chain activity alone predict depegs?"],
     ["M2 (regime-aware)", "M1 + stress flag (0/1)", "Does the regime improve forecasts? (Part 1)"],
-    ["M3 (logit only)", "M2 + each feature x stress", "Do feature effects change under stress? (Part 2)"],
+    ["M3 (logit only)", "M2 + each feature x stress + coin effects", "Do feature effects change under stress? (Part 2)"],
 ], columns=["Specification", "Inputs", "Question"]), "Model specifications")
 bullet(" Our main benchmark. Each feature pushes risk in one direction, so results are easy to read; in M2 "
        "the flag raises or lowers baseline risk on stressed days.", "Logistic regression (logit).")
@@ -541,34 +517,22 @@ figure(figs["svb"], "Forecasts for USDC and DAI around the SVB collapse.",
 
 doc.add_heading("4.4 On-chain relationships do change with the regime", level=2)
 para(f"Here the answer is yes. In the logit M3, the seven feature-by-stress terms are jointly highly significant "
-     f"(Wald chi-square = {wald['wald_chi_square']:.1f}, p = {wald['p_value']:.1e}, date-clustered standard errors). "
-     f"In calm markets, the mix of activity matters: more transfers lowers risk, while more unique senders, "
-     f"receivers and minting raise it. Under stress these effects fade and volume takes over: higher on-chain "
+     f"(Wald chi-square = {wald['wald_chi_square']:.1f}, p = {wald['p_value']:.1e}; standard errors clustered by "
+     f"week, {wald['weekly_clusters']} weeks). Features are standardised within each coin and the model includes "
+     f"coin fixed effects, so slopes compare a coin with its own usual activity. "
+     f"In calm markets, the mix of activity matters: more transfers and more burning lower risk, while more "
+     f"unique senders and minting raise it. Under stress these effects fade and volume takes over: higher on-chain "
      f"volume raises risk and more large-transfer volume lowers it (Figure 6, Table 6).")
 figure(figs["slopes"], "Logit M3: each feature's effect in normal vs stressed markets (95% intervals).", width=5.8)
 s = br.slopes.copy()
 table(pd.DataFrame({
     "Feature": s.feature.str.replace("log1p_", "").str.replace("_", " "),
-    "Normal market": [f"{a:.2f} ({b:.2f})" for a, b in zip(s.normal_log_odds_slope, s.normal_clustered_se)],
-    "Stressed market": [f"{a:.2f} ({b:.2f})" for a, b in zip(s.stressed_log_odds_slope, s.stressed_clustered_se)],
+    "Normal market": [f"{a:.2f} ({b:.2f})" for a, b in zip(s.normal_log_odds_slope, s.normal_se)],
+    "Stressed market": [f"{a:.2f} ({b:.2f})" for a, b in zip(s.stressed_log_odds_slope, s.stressed_se)],
     "Change under stress": s.interaction_delta.map(lambda v: f"{v:+.2f}"),
-}), "Logit M3: effect on depeg log-odds per 1 SD of each feature (standard error)", font=8.5,
-    note="Transfers, senders and receivers move closely together, so read their effects as a group.")
-para(f"The forest finds the same pattern without being told to look for it. Its predicted-risk curves for each "
-     f"feature are not parallel between regimes (Figure 7), and they diverge more under the real flag than under "
-     f"fake ones (placebo p = {rf_int['joint_placebo_p_value']:.3f}). The difference is largest for burned, minted and "
-     f"unique receivers (Table 7).")
-figure(figs["pdp"], "Random forest: predicted depeg risk as each feature varies, normal vs stressed (2022).")
-s2 = br.rf_int_sum[br.rf_int_sum.statistic != "oob_ap_gain"].copy()
-s2["statistic"] = s2.statistic.map(lambda v: "All features combined" if v == "joint_interaction"
-                                   else v.replace("I_log1p_", "").replace("_", " "))
-table(pd.DataFrame({"Feature": s2.statistic, "Real flag": s2.real.map(lambda v: f"{v:.4f}"),
-                    "Average fake flag": s2.placebo_mean.map(lambda v: f"{v:.4f}"),
-                    "Placebo p": s2.placebo_p_value.map(lambda v: f"{v:.3f}")}),
-      "Random forest: how much each feature's effect depends on the regime", font=8.5,
-      note="0 = the regime only shifts risk up or down; larger = the feature's effect itself changes. "
-           "Shaded rows: placebo p of 0.05 or less.",
-      highlight=lambda i, row: float(row[3]) <= 0.05)
+}), "Logit M3: effect on depeg log-odds per 1 within-coin SD of each feature (week-clustered standard error)", font=8.5,
+    note="Transfers, senders and receivers move closely together, so read their effects as a group. "
+         "USDT minting is constant in 2022, so the minting effect comes from DAI and USDC only.")
 para("The same on-chain movement does mean different things in different markets: heavy volume looks like a run "
      "under stress but is ordinary in calm times. This supports our hypothesis and the regime-dependent logic of "
      "currency-crisis early warning (Kaminsky, Lizondo & Reinhart, 1998). But because the pattern was learned "
@@ -585,7 +549,7 @@ table(pd.DataFrame(rows, columns=["Model", "Spec", "Cut-off", "Precision", "Reca
       note="Precision = share of alerts that were breaches; recall = share of 49 breaches that got an alert. "
            "2022 results are in Appendix Table A3.")
 para("Cut-offs set on 2022 (about 0.5-0.6) were far above the probabilities the models produced in 2023, so recall "
-     "fell to 2-20% (Table 8). The flag made this worse for the forest (10 breaches caught without it, 3 with it) "
+     "fell to 2-20% (Table 7). The flag made this worse for the forest (10 breaches caught without it, 3 with it) "
      "by lowering risk on 'normal' days. In 2022 the flag had looked useful, cutting the forest's false alarms "
      "from 8 to 2.")
 rows = []
@@ -597,7 +561,7 @@ table(pd.DataFrame(rows, columns=["Coin", "First breach day", "Regime flag", "Lo
       "Every new depeg episode in 2023 and the forecast made the day before", font=8.5,
       note="No model (M1 or M2) issued an alert for any of these days or the three days before them.")
 para("None of the 10 new episodes in 2023 was warned of by any model, so lead time cannot be measured "
-     "(Table 9). Every correct alert fell on a day after an episode had already begun. The models mainly learn "
+     "(Table 8). Every correct alert fell on a day after an episode had already begun. The models mainly learn "
      "that depegs persist, not when they start, partly because the label rewards spotting ongoing episodes.",
      bold_lead="Interpretation. ")
 

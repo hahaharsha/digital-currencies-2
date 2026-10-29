@@ -1,8 +1,8 @@
 """Build the logit-vs-random-forest regime report as a PDF.
 
 Reads only saved outputs:
-  logit/outputs/{interaction_test, regime_lag_sensitivity}
-  random_forest/outputs/{rf_decomposition, interaction_test, regime_lag_sensitivity}
+  logit/outputs/{logit_decomposition, interaction_weekly_initial, regime_lag_sensitivity}
+  random_forest/outputs/{rf_decomposition, regime_lag_sensitivity}
   model_comparison/outputs/   (from compare_models.py)
 """
 
@@ -25,6 +25,8 @@ CMP = ROOT / "model_comparison/outputs"
 LOGIT = ROOT / "logit/outputs"
 RF = ROOT / "random_forest/outputs"
 TARGET = "depeg_dynamic"
+# Reports are written outside the repo
+REPORT_DIR = Path.home() / "Downloads" / "stablecoin_regime_report"
 
 # categorical slots (reference palette): model identity follows the entity
 LOGIT_C, RF_C = "#2a78d6", "#eb6834"
@@ -118,13 +120,15 @@ preds = {
     ("Random forest", "2022 validation"): pd.read_csv(CMP / "random_forest_validation_predictions.csv", parse_dates=["date", "event_date"]),
     ("Random forest", "2023 frozen test"): pd.read_csv(CMP / "random_forest_oos_predictions.csv", parse_dates=["date", "event_date"]),
 }
-wald = json.loads((LOGIT / "interaction_test/wald_test.json").read_text())
-slopes = pd.read_csv(LOGIT / "interaction_test/regime_specific_slopes.csv")
-rf_int = json.loads((RF / "interaction_test/interaction_test.json").read_text())
-rf_int_sum = pd.read_csv(RF / "interaction_test/interaction_summary.csv")
-rf_pdp = pd.read_csv(RF / "interaction_test/regime_specific_partial_dependence.csv")
+# Logit M3 from logit/interaction_test.py: within-coin scaling, coin effects, week-clustered SEs
+INTERACTION = LOGIT / "interaction_weekly_initial"
+_w = json.loads((INTERACTION / "wald_test.json").read_text())
+wald = {"wald_chi_square": _w["wald_chi_square"]["statistic"], "df": _w["wald_chi_square"]["df"],
+        "p_value": _w["wald_chi_square"]["p_value"], "observations": _w["observations"],
+        "weekly_clusters": _w["weekly_clusters"]}
+slopes = pd.read_csv(INTERACTION / "regime_specific_slopes.csv").rename(columns={
+    "normal_week_clustered_se": "normal_se", "stressed_week_clustered_se": "stressed_se"})
 rf_imp = pd.read_csv(RF / "rf_decomposition/feature_importances.csv")
-rf_int_imp = pd.read_csv(RF / "interaction_test/m2_feature_importances.csv")
 logit_coef = pd.read_csv(LOGIT / "logit_decomposition/coefficients.csv")
 lag_preds = {
     "Logit": pd.read_csv(LOGIT / "regime_lag_sensitivity/all_lag_predictions.csv"),
@@ -189,11 +193,9 @@ def build(out_pdf, findings):
                   "lengths but breaks its timing. Each placebo goes through the full pipeline. If the real flag "
                   "carries information, its M2 gain should beat most placebo gains. p = share of placebos "
                   "at least as good."),
-            ("b", "Interaction test: does the effect of on-chain activity differ by regime? Logit: M3 with "
-                  "seven feature-by-stress terms and a date-clustered Wald test (logit/interaction_test.py). "
-                  "RF: the forest learns interactions implicitly, so we measure how much each feature's partial "
-                  "dependence curve changes shape between stress = 0 and 1, versus placebo flags "
-                  "(random_forest/rf_interaction_test.py)."),
+            ("b", "Interaction test: does the effect of on-chain activity differ by regime? Logit M3 with "
+                  "seven feature-by-stress terms, coin fixed effects and a week-clustered Wald test "
+                  "(logit/interaction_test.py)."),
         ])
 
         # ---------------------------------------------------------- 3 headline metrics table
@@ -407,71 +409,31 @@ def build(out_pdf, findings):
         pdf.savefig(fig)
         plt.close(fig)
 
-        # ---------------------------------------------------------- 10 interaction tests
+        # ---------------------------------------------------------- 10 interaction test (logit)
         fig = plt.figure(figsize=A4)
-        fig.text(0.06, 0.96, "Do on-chain effects differ by regime? (interaction tests, 2022 sample)",
+        fig.text(0.06, 0.96, "Do on-chain effects differ by regime? (logit interaction test, 2022 sample)",
                  fontsize=12.5, fontweight="bold", va="top")
         fig.text(0.06, 0.925, textwrap.fill(
             f"Logit M3: joint Wald chi-square({wald['df']}) = {wald['wald_chi_square']:.1f}, "
-            f"p = {wald['p_value']:.1e}, date-clustered, {wald['observations']} obs / {wald['date_clusters']} dates. "
-            f"Warning from the script: one regime has fewer breaches than parameters, so the asymptotic test may be unreliable.",
+            f"p = {wald['p_value']:.1e}, week-clustered, {wald['observations']} obs / {wald['weekly_clusters']} weeks. "
+            f"Warnings from the script: one regime has fewer breaches than parameters, and there are fewer than 50 "
+            f"week clusters, so the asymptotic test may be unreliable.",
             115), fontsize=8.5, color=INK, va="top")
         sl = slopes.copy()
         sl["feature"] = sl.feature.str.replace("log1p_", "")
         ax = fig.add_axes([0.04, 0.66, 0.92, 0.22])
         table(ax, pd.DataFrame({
             "Feature": sl.feature,
-            "Normal slope (SE)": [f"{a:.2f} ({b:.2f})" for a, b in zip(sl.normal_log_odds_slope, sl.normal_clustered_se)],
-            "Stressed slope (SE)": [f"{a:.2f} ({b:.2f})" for a, b in zip(sl.stressed_log_odds_slope, sl.stressed_clustered_se)],
+            "Normal slope (SE)": [f"{a:.2f} ({b:.2f})" for a, b in zip(sl.normal_log_odds_slope, sl.normal_se)],
+            "Stressed slope (SE)": [f"{a:.2f} ({b:.2f})" for a, b in zip(sl.stressed_log_odds_slope, sl.stressed_se)],
             "Interaction": sl.interaction_delta.map(lambda v: f"{v:+.2f}"),
-        }), title="Logit M3: regime-specific log-odds slopes (standardised features)", fontsize=7.5)
-        fig.text(0.06, 0.635, textwrap.fill(
-            f"Random forest: joint interaction statistic = {rf_int['joint_interaction']:.3f} vs placebo mean "
-            f"{rf_int_sum.set_index('statistic').loc['joint_interaction', 'placebo_mean']:.3f}; "
-            f"placebo p = {rf_int['joint_placebo_p_value']:.3f} ({rf_int['n_placebos']} placebos). "
-            f"OOB AP: M1 {rf_int['oob_ap_m1']:.3f}, M2 {rf_int['oob_ap_m2']:.3f}, gain placebo p = "
-            f"{rf_int['oob_ap_gain_placebo_p_value']:.2f}.", 115), fontsize=8.5, color=INK, va="top")
-        s = rf_int_sum.copy()
-        s["statistic"] = s.statistic.str.replace("I_log1p_", "").str.replace("_", " ")
-        ax = fig.add_axes([0.04, 0.30, 0.92, 0.29])
-        table(ax, pd.DataFrame({
-            "Statistic": s.statistic, "Real": s.real.map(lambda v: f"{v:.4f}"),
-            "Placebo mean": s.placebo_mean.map(lambda v: f"{v:.4f}"),
-            "Placebo 95th pct": s.placebo_95pct.map(lambda v: f"{v:.4f}"),
-            "Placebo p": s.placebo_p_value.map(lambda v: f"{v:.3f}"),
-        }), title="RF M2: regime-dependence of each feature's partial dependence", fontsize=7.5)
-        fig.text(0.06, 0.255, textwrap.fill(
-            "I_j = standard deviation over a quantile grid of [PD_j(g | stress = 1) - PD_j(g | stress = 0)], on the "
-            "probability scale. A flat difference means the flag only shifts the level; a varying difference means the "
-            "feature's effect depends on the regime. Both tests are in-sample descriptions of 2022, not out-of-sample evidence.",
-            120), fontsize=8, color=INK2, va="top")
+        }), title="Logit M3: regime-specific log-odds slopes (within-coin standardised features)", fontsize=7.5)
+        fig.text(0.06, 0.635, "This is an in-sample description of 2022, not out-of-sample evidence.",
+                 fontsize=8, color=INK2, va="top")
         pdf.savefig(fig)
         plt.close(fig)
 
-        # ---------------------------------------------------------- 11 PDP curves
-        feats = list(dict.fromkeys(rf_pdp.feature))
-        fig, axes = plt.subplots(4, 2, figsize=(A4[0], 10.5))
-        for ax, f in zip(axes.flat, feats):
-            g = rf_pdp[rf_pdp.feature.eq(f)]
-            ax.plot(g.grid_value, g.pd_normal, color="#1baf7a", label="stress = 0")
-            ax.plot(g.grid_value, g.pd_stressed, color="#6250d6", label="stress = 1")
-            ax.set_title(f.replace("log1p_", ""), fontsize=9)
-            ax.set_xlabel("log1p value", fontsize=7)
-            ax.set_ylabel("PD of P(breach)", fontsize=7)
-            ax.tick_params(labelsize=7)
-        axes.flat[0].legend(fontsize=7)
-        ax = axes.flat[-1]
-        imp = rf_int_imp.sort_values("mdi_importance")
-        ax.barh(imp.feature.str.replace("log1p_", ""), imp.mdi_importance, color=RF_C, edgecolor="white")
-        ax.set_title("RF M2 impurity importance (2022 fit)", fontsize=9)
-        ax.tick_params(labelsize=7)
-        ax.grid(axis="y", visible=False)
-        fig.suptitle("Random forest M2: partial dependence by regime (2022 sample)", fontweight="bold")
-        fig.tight_layout()
-        pdf.savefig(fig)
-        plt.close(fig)
-
-        # ---------------------------------------------------------- 12 coefficients vs importances (frozen)
+        # ---------------------------------------------------------- 11 coefficients vs importances (frozen)
         fig, axes = plt.subplots(1, 2, figsize=(A4[0], 4.8))
         c = logit_coef[(logit_coef.fold == "frozen_2022") & (logit_coef.feature != "intercept")]
         for k, spec in enumerate(["M1", "M2"]):
@@ -500,7 +462,7 @@ def build(out_pdf, findings):
         pdf.savefig(fig)
         plt.close(fig)
 
-        # ---------------------------------------------------------- 13 caveats / files
+        # ---------------------------------------------------------- 12 caveats / files
         page(pdf, "Caveats and reproduction", [
             ("h", "Caveats"),
             ("b", "Very few events. The 2022 validation has 8 breaches, all in July 2022; Aug to Nov folds have none, "
@@ -514,14 +476,14 @@ def build(out_pdf, findings):
             ("b", "Publication timing of the on-chain aggregates and regime inputs is assumed (lag 0), not verified; "
                   "the lag-sensitivity page shows how much this matters for the flag."),
             ("h", "Code and outputs"),
-            ("b", "logit/: logit_oos.py, regime_lag_sensitivity.py, interaction_test.py (unchanged)."),
-            ("b", "random_forest/: rf_oos.py, rf_regime_lag_sensitivity.py, rf_interaction_test.py, with outputs "
+            ("b", "logit/: logit_oos.py, regime_lag_sensitivity.py, interaction_test.py."),
+            ("b", "random_forest/: rf_oos.py, rf_regime_lag_sensitivity.py, with outputs "
                   "in random_forest/outputs/."),
             ("b", "model_comparison/: compare_models.py (bootstrap + placebo for both models) and build_report.py "
                   "(this PDF)."),
             ("p", "Run order from the repository root: python random_forest/rf_oos.py --out "
                   "random_forest/outputs/rf_decomposition; python random_forest/rf_regime_lag_sensitivity.py; "
-                  "python random_forest/rf_interaction_test.py; python model_comparison/compare_models.py; "
+                  "python model_comparison/compare_models.py; "
                   "python model_comparison/build_report.py."),
         ])
 
@@ -580,10 +542,8 @@ def findings():
               "roughly equal to RF M1. Neither model gives DAI or USDC a high probability during SVB (RF peaks "
               "near 25% for USDC, logit near 6%); both mainly flag USDT."),
         ("h", "3. Does the effect of on-chain activity depend on the regime?"),
-        ("b", f"Yes, in-sample, in both families. Logit M3 Wald p = {wald['p_value']:.1e} (but with a sparse-data "
-              f"warning). RF regime-dependence of partial dependence beats placebos (p = "
-              f"{rf_int['joint_placebo_p_value']:.3f}), driven by burned, minted and unique receivers. This "
-              f"heterogeneity does not turn into better out-of-sample forecasts."),
+        ("b", f"Yes, in-sample. Logit M3 Wald p = {wald['p_value']:.1e} (but with a sparse-data warning). "
+              f"This heterogeneity does not turn into better out-of-sample forecasts."),
         ("h", "Bottom line for the paper"),
         ("p", "Report the regime flag as a descriptive moderator (on-chain effects differ under stress), not as "
               "a forecasting improvement. Out of sample, the flag's gains are small, timing-sensitive and "
@@ -594,6 +554,7 @@ def findings():
 
 
 if __name__ == "__main__":
-    out = ROOT / "model_comparison/regime_value_logit_vs_rf.pdf"
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    out = REPORT_DIR / "regime_value_logit_vs_rf.pdf"
     build(out, findings())
     print("Wrote", out)
