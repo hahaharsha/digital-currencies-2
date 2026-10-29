@@ -11,3 +11,7 @@ figures/
 /dataset/VIXCLS.csv
 /.ipynb_checkpoints/
 **/.ipynb_checkpoints/
+
+# Reports are built into ~/Downloads/stablecoin_regime_report/, never the repo
+*.docx
+*.pdf

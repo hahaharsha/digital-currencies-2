@@ -1,0 +1,5 @@
+model,spec,threshold
+Logit,M1,0.5328272208507714
+Logit,M2,0.6277337843916203
+Random forest,M1,0.5717137555851056
+Random forest,M2,0.6174570534057927

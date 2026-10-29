@@ -2,7 +2,7 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 
-root = Path(__file__).resolve().parent
+root = Path(__file__).resolve().parents[1]
 df = pd.read_csv(root / 'dataset/prices.csv', parse_dates=['date'])
 df = df[df.coin.isin(['USDT', 'USDC', 'DAI'])].sort_values(['coin', 'date']).copy()
 

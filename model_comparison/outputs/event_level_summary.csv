@@ -1,0 +1,5 @@
+model,spec,episodes,warned_on_onset_day,warned_within_3d,mean_lead_days_if_warned
+Logit,M1,10,0,0,
+Logit,M2,10,0,0,
+Random forest,M1,10,0,0,
+Random forest,M2,10,0,0,
