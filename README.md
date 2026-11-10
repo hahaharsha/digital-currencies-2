@@ -177,9 +177,10 @@ to `replication/outputs/table3_descriptive_statistics.csv` and
 
 ## 5. Other files
 
-- `depeg_labeller/label_validation.py`: compares our dynamic band with the
-  original 30-day and static 25 bp bands (plots in `depeg_labeller/results/`).
-  A diagnostic, not the label used by the models.
+- `dynamic_depeg.py` builds the depeg labels.
+- `audit.ipynb` contains the main label audit and the static downside-only 25 bp robustness check, with logit/RF metrics and plots displayed inline.
+- `label_validation.py` provides supplementary label comparisons, direction checks and episode summaries. It overlaps with parts of the notebook and uses its own label calculations.
+- `dynamic_labeller`/`results`/ contains generated label datasets and supporting audit outputs. Some files are required by the standalone modelling and reporting scripts. The inline notebook does not regenerate this folder.
 - `regime_classifier/regime_audit_helpers.py`: helpers for the regime notebook.
 - `mid_term_presentation/`: mid-term scripts, EDA and data snapshots, plus
   early utilities (`build_onchain_data.py`, `threshold_audit.py`,
